@@ -7,3 +7,5 @@ openpyxl
 xlrd
 matplotlib
 seaborn
+flask
+joblib
