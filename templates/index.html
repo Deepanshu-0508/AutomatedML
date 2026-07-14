@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analyzer</title>
+</head>
+<body>
+
+    <h2>Upload CSV/XLSX File</h2>
+
+    <input type="file" id="fileInput" accept=".csv,.xlsx">
+    <button id="uploadBtn">Upload</button>
+
+    <h3>Dataset Info</h3>
+    <p id="info"></p>
+
+    <h3>Preview</h3>
+    <table border="1" id="previewTable"></table>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>
