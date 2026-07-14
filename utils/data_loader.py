@@ -1,8 +1,6 @@
 import os
 import pandas as pd
 
-filepath ='diabetes.csv'
-#filepath = 'README.md'
 
 def load_file(filepath):
     # Extracting the file extension
