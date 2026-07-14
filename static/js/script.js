@@ -29,7 +29,7 @@ uploadBtn.addEventListener("click", async () => {
             return;
         }
 
-        info.textContent = `Rows: ${data.rows} | Columns: ${data.cols}`;
+        info.textContent = `Rows: ${data.shape[0]} | Columns: ${data.shape[1]}`;
 
         previewTable.innerHTML = "";
 
