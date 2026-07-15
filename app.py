@@ -43,5 +43,21 @@ def upload():
     })
 
 
+def analyze():
+    if "current_file" not in session:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file_path = session["current_file"]
+
+    try:
+        df = data_loader.load_file(file_path)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    issues = analyzer.flag_issue(df)
+
+    return jsonify(issues)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
