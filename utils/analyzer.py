@@ -11,7 +11,7 @@ def flag_issues(df):
     report = {}
     
     # ---------------------------------------------------------
-    # Commit 2: Missing-values analysis
+    #  Missing-values analysis
     # ---------------------------------------------------------
     missing_count = df.isnull().sum()
     missing_percent = (missing_count / len(df)) * 100
@@ -29,13 +29,13 @@ def flag_issues(df):
     report["missing"] = missing_dict
     
     # ---------------------------------------------------------
-    # Commit 3: Duplicate row detection
+    #  Duplicate row detection
     # ---------------------------------------------------------
     duplicate_count = int(df.duplicated().sum())
     report["duplicates"] = duplicate_count
     
     # ---------------------------------------------------------
-    # Commit 4: Skewed numeric columns flag
+    #  Skewed numeric columns flag
     # ---------------------------------------------------------
     skewed_columns = []
     
