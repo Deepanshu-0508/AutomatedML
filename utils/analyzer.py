@@ -1,39 +1,56 @@
-import os,pandas as pd
-
-def flag_issue(df):
-    import pandas as pd
+import pandas as pd
 
 def flag_issues(df):
     """
-    Analyze a DataFrame and return a dictionary of data quality issues.
+    Analyzes a pandas DataFrame for missing values, duplicate rows, 
+    and skewed numeric features.
     
-    Returns:
-        dict: Issues found, with keys 'missing', 'duplicates'
-              Only includes keys that have actual issues.
+    Returns a dictionary containing the analysis report.
     """
-    issues = {}
+    # Initialize the report dictionary
+    report = {}
     
-    # MISSING VALUES
+    # ---------------------------------------------------------
+    # Commit 2: Missing-values analysis
+    # ---------------------------------------------------------
     missing_count = df.isnull().sum()
     missing_percent = (missing_count / len(df)) * 100
     
+    # Build the dictionary only for columns that actually have missing values
     missing_dict = {}
     for col in df.columns:
-        count = missing_count[col]
+        count = int(missing_count[col])
         if count > 0:
             missing_dict[col] = {
-                "count": int(count),  
-                "percent": round(float(missing_percent[col]), 2)  
+                "count": count,
+                "percent": float(missing_percent[col])
             }
+            
+    report["missing"] = missing_dict
     
-    if missing_dict:  # Only add key if there are actual missing values
-        issues["missing"] = missing_dict
-    
-    #  DUPLICATE ROWS
+    # ---------------------------------------------------------
+    # Commit 3: Duplicate row detection
+    # ---------------------------------------------------------
     duplicate_count = int(df.duplicated().sum())
-    if duplicate_count > 0:
-        issues["duplicates"] = duplicate_count
+    report["duplicates"] = duplicate_count
     
+    # ---------------------------------------------------------
+    # Commit 4: Skewed numeric columns flag
+    # ---------------------------------------------------------
+    skewed_columns = []
     
+    # Select only numeric columns (integers and floats) to avoid errors
+    numeric_cols = df.select_dtypes(include=['number']).columns
     
-    return issues
+    for col in numeric_cols:
+        skewness = df[col].skew()
+        
+        # Check if absolute skewness is greater than 1.0
+        # (Using pd.isna check to ensure we don't crash on empty/constant columns)
+        if not pd.isna(skewness) and abs(skewness) > 1.0:
+            skewed_columns.append(col)
+            
+    report["skewed"] = skewed_columns
+    
+    # Return the shared info back to app.py
+    return report
