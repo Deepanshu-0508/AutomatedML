@@ -1,4 +1,5 @@
 import os
+import uuid
 from flask import Flask, render_template, request, jsonify, session
 from utils import data_loader,analyzer, cleaner
 
@@ -86,7 +87,7 @@ def clean():
 
     # 5. Save the cleaned DataFrame to a new file
     # Generate a unique ID to simulate a session-specific filename
-    session_id = uuid.uuid4().hex
+    session_id = uuid.uuid4().hex # pyright: ignore[reportUndefinedVariable]
     new_filename = f"cleaned_{session_id}.csv"
     new_save_path = os.path.join(UPLOAD_FOLDER, new_filename)
     
