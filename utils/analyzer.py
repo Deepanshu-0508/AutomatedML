@@ -5,7 +5,8 @@ def flag_issues(df):
     Analyzes a pandas DataFrame for missing values, duplicate rows, 
     and skewed numeric features.
     
-    Returns a dictionary containing the analysis report.
+    Returns a dictionary containing the analysis report. Keys are omitted 
+    if no issues are found in that category.
     """
     # Initialize the report dictionary
     report = {}
@@ -26,13 +27,18 @@ def flag_issues(df):
                 "percent": float(missing_percent[col])
             }
             
-    report["missing"] = missing_dict
+    # Only append if there are actually missing values
+    if missing_dict:
+        report["missing"] = missing_dict
     
     # ---------------------------------------------------------
     #  Duplicate row detection
     # ---------------------------------------------------------
     duplicate_count = int(df.duplicated().sum())
-    report["duplicates"] = duplicate_count
+    
+    # Only append if duplicates exist
+    if duplicate_count > 0:
+        report["duplicates"] = duplicate_count
     
     # ---------------------------------------------------------
     #  Skewed numeric columns flag
@@ -50,7 +56,9 @@ def flag_issues(df):
         if not pd.isna(skewness) and abs(skewness) > 1.0:
             skewed_columns.append(col)
             
-    report["skewed"] = skewed_columns
+    # Only append if skewed columns are found
+    if skewed_columns:
+        report["skewed"] = skewed_columns
     
-    # Return the shared info back to app.py
+    # Return the shaped payload back to app.py
     return report
