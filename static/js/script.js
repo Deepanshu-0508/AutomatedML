@@ -82,6 +82,7 @@ uploadBtn.addEventListener("click", async () => {
 });
 
 // Helper function to dynamically build the UI and highlight headers
+// Helper function to dynamically build the UI, highlight headers, and generate cleaning controls
 function displayIssues(issues) {
     let issuesDiv = getOrCreateIssuesDiv();
 
@@ -146,8 +147,77 @@ function displayIssues(issues) {
         perfectElem.textContent = 'No issues found. The dataset looks clean!';
         issuesDiv.appendChild(perfectElem);
     }
-}
 
+    // --- COMMIT 3: Dynamic cleaning UI generation ---
+    
+    // 1. Remove existing cleaning controls if they exist (to prevent staking duplicate elements)
+    const existingControls = document.getElementById('cleaning-controls');
+    if (existingControls) {
+        existingControls.remove();
+    }
+
+    // 2. Generate the cleaning UI wrapper if there are columns with missing values
+    if (issues.missing && Object.keys(issues.missing).length > 0) {
+        const cleaningControls = document.createElement('div');
+        cleaningControls.id = 'cleaning-controls';
+        
+        // Optional structural styling matching the issues panel
+        cleaningControls.style.marginTop = '20px';
+        cleaningControls.style.padding = '15px';
+        cleaningControls.style.border = '1px solid #ccc';
+        cleaningControls.style.borderRadius = '5px';
+        cleaningControls.style.backgroundColor = '#f4f7f6';
+
+        const heading = document.createElement('h3');
+        heading.textContent = 'Clean Missing Values';
+        cleaningControls.appendChild(heading);
+
+        // 3. For each missing column, create its label and select dropdown
+        for (const colName of Object.keys(issues.missing)) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'cleaning-col-group';
+            colDiv.style.marginBottom = '12px';
+
+            // Column Label
+            const label = document.createElement('label');
+            label.textContent = `${colName}: `;
+            label.style.fontWeight = 'bold';
+            label.style.marginRight = '10px';
+
+            // Dropdown Menu
+            const select = document.createElement('select');
+            select.name = `clean_${colName}`;
+            select.dataset.column = colName; // Attach column name data attribute for Commit 4
+
+            // Available Actions (mapping directly to your backend rules in Commit 1)
+            const actions = [
+                { value: 'keep', text: 'Keep missing' },
+                { value: 'drop_rows', text: 'Drop rows with missing' },
+                { value: 'fill_mean', text: 'Fill with mean' },
+                { value: 'fill_median', text: 'Fill with median' },
+                { value: 'fill_mode', text: 'Fill with mode' },
+                { value: 'interpolate', text: 'Interpolate' },
+                { value: 'drop_column', text: 'Drop whole column' }
+            ];
+
+            // Populate the dropdown options
+            actions.forEach(action => {
+                const option = document.createElement('option');
+                option.value = action.value;
+                option.textContent = action.text;
+                select.appendChild(option);
+            });
+
+            // Put it all together
+            colDiv.appendChild(label);
+            colDiv.appendChild(select);
+            cleaningControls.appendChild(colDiv);
+        }
+
+        // 4. Safely insert the container right after the issues panel wrapper element
+        issuesDiv.insertAdjacentElement('afterend', cleaningControls);
+    }
+}
 // Fallback function to show errors if /analyze fails
 function displayIssuesError(errorMessage) {
     let issuesDiv = getOrCreateIssuesDiv();
