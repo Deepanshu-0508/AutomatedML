@@ -4,21 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .panel { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        button, input[type="file"] { padding: 8px 12px; }
+    </style>
 </head>
 <body>
-
     <h2>Upload CSV/XLSX File</h2>
-
-    <input type="file" id="fileInput" accept=".csv,.xlsx">
+    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
     <button id="uploadBtn">Upload</button>
 
-    <h3>Dataset Info</h3>
-    <p id="info"></p>
+    <div class="panel">
+        <h3>Dataset Info</h3>
+        <p id="info"></p>
+    </div>
 
-    <h3>Preview</h3>
-    <table border="1" id="previewTable"></table>
+    <div class="panel">
+        <h3>Preview</h3>
+        <table id="previewTable"></table>
+    </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
 </body>
 </html>

@@ -1,13 +1,14 @@
 import os
 import uuid
 from flask import Flask, render_template, request, jsonify, session
-from utils import data_loader,analyzer, cleaner
+from utils import data_loader, analyzer, cleaner
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 
 @app.route("/")
@@ -17,19 +18,22 @@ def home():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
-
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
 
-    save_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(save_path)
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in {".csv", ".xlsx", ".xls"}:
+        return jsonify({"error": "Unsupported file type. Please upload CSV or Excel."}), 400
+
+    safe_name = f"{uuid.uuid4().hex}{file_ext}"
+    save_path = os.path.join(UPLOAD_FOLDER, safe_name)
 
     try:
+        file.save(save_path)
         df = data_loader.load_file(save_path)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
