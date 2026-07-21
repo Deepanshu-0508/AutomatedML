@@ -87,8 +87,10 @@ def clean():
 
     # 5. Save the cleaned DataFrame to a new file
     # Generate a unique ID to simulate a session-specific filename
-    session_id = uuid.uuid4().hex # pyright: ignore[reportUndefinedVariable]
+    session_id = uuid.uuid4().hex 
     new_filename = f"cleaned_{session_id}.csv"
+    
+    # Assuming UPLOAD_FOLDER is defined globally in your app.py
     new_save_path = os.path.join(UPLOAD_FOLDER, new_filename)
     
     try:
@@ -110,7 +112,6 @@ def clean():
         "shape": list(cleaned_df.shape),
         "issues": issues
     })
-
 
 if __name__ == "__main__":
     app.run(debug=True)

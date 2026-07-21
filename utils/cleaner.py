@@ -41,5 +41,9 @@ def clean_data(df, operations):
             
         elif action == "drop_column":
             cleaned_df.drop(columns=[col], inplace=True)
+
+        elif action == "keep":
+            # Matches the "Keep missing" dropdown option from the frontend
+            pass
             
     return cleaned_df
