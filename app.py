@@ -1,5 +1,6 @@
 import os
 import uuid
+import pandas as pd
 from flask import Flask, render_template, request, jsonify, session
 from utils import data_loader, analyzer, cleaner
 
