@@ -117,5 +117,74 @@ def clean():
         "issues": issues
     })
 
+@app.route("/set_target", methods=["POST"])
+def set_target():
+    # 1. Ensure a file is loaded in session
+    if "current_file" not in session:
+        return jsonify({"error": "No file uploaded. Please upload a dataset first."}), 400
+
+    # 2. Extract JSON payload
+    data = request.get_json() or {}
+    target = data.get("target")
+    task = data.get("task")
+
+    # 3. Validate basic payload format
+    if not target or not isinstance(target, str):
+        return jsonify({"error": "Target column name must be a valid non-empty string."}), 400
+
+    if task not in ["regression", "classification"]:
+        return jsonify({"error": "Task must be either 'regression' or 'classification'."}), 400
+
+    # 4. Fast-path check: Validate column existence using cached columns in session
+    cached_columns = session.get("columns")
+    if cached_columns is not None and target not in cached_columns:
+        return jsonify({"error": f"Column '{target}' was not found in the dataset."}), 400
+
+    # 5. Load DataFrame to inspect dtypes and verify target suitability
+    file_path = session["current_file"]
+    try:
+        df = data_loader.load_file(file_path)
+    except Exception as e:
+        return jsonify({"error": f"Failed to load dataset: {str(e)}"}), 400
+
+    if target not in df.columns:
+        return jsonify({"error": f"Column '{target}' was not found in the dataset."}), 400
+
+    target_series = df[target]
+    target_dtype = str(target_series.dtype)
+    is_numeric = pd.api.types.is_numeric_dtype(target_series)
+
+    # 6. Task vs. Dtype Validation Rules & Warnings
+    warning = None
+
+    # Regression require numeric target
+    if task == "regression" and not is_numeric:
+        return jsonify({
+            "error": f"Target column '{target}' is non-numeric ({target_dtype}) and cannot be used for regression. Select a numeric column or switch to classification."
+        }), 400
+
+    # Classification with high-cardinality numeric columns warning
+    if task == "classification" and is_numeric:
+        unique_count = target_series.nunique(dropna=True)
+        if unique_count > 50:
+            warning = f"Target '{target}' has {unique_count} distinct numeric values. Are you sure you want classification instead of regression?"
+
+    # 7. Store choices in session
+    session["target"] = target
+    session["task"] = task
+
+    # 8. Return rich payload to frontend
+    response_payload = {
+        "status": "ok",
+        "target": target,
+        "task": task,
+        "dtype": target_dtype
+    }
+    if warning:
+        response_payload["warning"] = warning
+
+    return jsonify(response_payload)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
